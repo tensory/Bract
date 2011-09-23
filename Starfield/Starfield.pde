@@ -32,21 +32,33 @@ void setup() {
   // Initialize gfx! That'll help...
   gfx = new ToxiclibsSupport(this);
   
+  // Put points down randomly along the edges of the canvas
+  int halfCanvas = canvasSize / 2;
+  translate(halfCanvas, halfCanvas);
+  strokeWeight(3);
+  stroke(255, 0, 0);
+  ellipse(0, 0, 5, 5);
+ /*
+  for (int i = 0; i < 4; i++) {
+    voronoi.addPoint(new Vec2D(0, (int) random(-(halfCanvas), halfCanvas)));
+    // Rotate 90 degrees
+    rotate(HALF_PI);
+  }
+ /*
   // Put a whole bunch of points down
   for (int i = 0; i < 300; i++) {
     voronoi.addPoint(new Vec2D((int) random(0, canvasSize), (int) random(0, canvasSize)));
   }
-  
+  */
   setTriangles();
-  
 }
 
 void draw() {
-  background(0);
+/*  background(0);
   fill(128);
   strokeWeight(1);
   stroke(255);
-
+*/
   // Show DT of points
   beginShape(TRIANGLES);
   for (Triangle2D t : delaunayTriangles) {
@@ -68,6 +80,7 @@ void draw() {
   for (Vec2D c : voronoi.getSites()) {
     ellipse(c.x, c.y, 3, 3);
   }
+  */
 }  
 
 void mouseClicked() {
