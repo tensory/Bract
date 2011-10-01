@@ -33,63 +33,41 @@ void setup() {
 
   // surface defines vertices of the tileable shape
   // this could be read from a file...
-  ArrayList<Vec2D> surface = new ArrayList<Vec2D>();
-  surface.add(new Vec2D(0, 0));
-  surface.add(new Vec2D(0, canvasSize));
-  surface.add(new Vec2D(canvasSize, canvasSize));
-  surface.add(new Vec2D(canvasSize, 0));
-  
-  // Define the corners since it's a square
-  // TODO: make a function to sort out corners and other major vertices
-  
-  
-  voronoi.addPoint(new Vec2D(0, 0));
-  voronoi.addPoint(new Vec2D(0, canvasSize));
-  voronoi.addPoint(new Vec2D(canvasSize, canvasSize));
-  voronoi.addPoint(new Vec2D(canvasSize, 0));
-  
-  // Put points down randomly along the edges of the containing shape
-  // Define it as a segment array
-  // This can be reused for more complicated shapes; just reduce them to segments
-  ArrayList<Line2D> container = new ArrayList<Line2D>();
-  container.add(new Line2D(new Vec2D(0, 0), new Vec2D(canvasSize, 0))); // top
-  container.add(new Line2D(new Vec2D(canvasSize, 0), new Vec2D(canvasSize, canvasSize))); // right
-  container.add(new Line2D(new Vec2D(0, canvasSize), new Vec2D(canvasSize, canvasSize))); // bottom
-  container.add(new Line2D(new Vec2D(0, 0), new Vec2D(0, canvasSize))); // left
+  ArrayList<Vec2D> vertices = new ArrayList<Vec2D>();
+  vertices.add(new Vec2D(0, 0));
+  vertices.add(new Vec2D(0, canvasSize));
+  vertices.add(new Vec2D(canvasSize, canvasSize));
+  vertices.add(new Vec2D(canvasSize, 0));
 
-  int pointsPerSide = 20;
-  for (Line2D segment : container) {
-    // Find slope
-    // Special case for vertical slope
-    if (segment.a.x == segment.b.x) {
-      for (int i = 0; i < pointsPerSide; i++) {
-        voronoi.addPoint(new Vec2D((int)segment.a.x, (int)random(segment.a.y, segment.b.y)));
-      }
-    } 
-    else { 
-      float m = (segment.b.y - segment.a.y) / (segment.b.x - segment.a.x);
-      float b = segment.a.y - (m * segment.a.x);
-      for (int i = 0; i < pointsPerSide; i++) {
-        int x = (int) (segment.a.x < segment.b.x ? random(segment.a.x, segment.b.x) : random(segment.b.x, segment.a.x));
-        int y = (int) ((m * x) + b);
-        voronoi.addPoint(new Vec2D(x, y));
-      }
+  // Make the graph the edges at first
+  voronoi = defineSurface(vertices);
+
+  // Throw down remaining points that are inside the shape
+  Polygon2D surface = new Polygon2D(vertices);
+  ArrayList<Vec2D> newPoints = new ArrayList<Vec2D>();
+  int containedPoints = 1000;
+
+  while (newPoints.size () < containedPoints) {
+    Vec2D newPoint = new Vec2D((int) random(0, canvasSize), (int) random(0, canvasSize));
+    if (surface.containsPoint(newPoint)) {
+      newPoints.add(newPoint);
     }
+  } 
+
+  for (Vec2D pt : newPoints) {
+    voronoi.addPoint(pt);
   }
-  
-  // Throw down the rest of the points
-  for (int i = 0; i < 300; i++) {
-     voronoi.addPoint(new Vec2D((int) random(0, canvasSize), (int) random(0, canvasSize)));
-   }
+
   setTriangles();
 }
 
 void draw() {
-   background(0);
-   fill(128);
-   strokeWeight(1);
-   stroke(255);
-   
+  background(0);
+  fill(128);
+  strokeWeight(1);
+  stroke(255);
+
+/*
   // Show DT of points
   beginShape(TRIANGLES);
   for (Triangle2D t : delaunayTriangles) {
@@ -103,12 +81,17 @@ void draw() {
     gfx.triangle(t, false);
   }
   endShape();
-    
+*/
+  stroke(#671295);
+  fill(#D7B9E8);
+  for (Polygon2D r : voronoi.getRegions()) {
+    gfx.polygon2D(r);
+  }  
+  
   // Show original clicked points
   for (Vec2D c : voronoi.getSites()) {
     ellipse(c.x, c.y, 3, 3);
   }
-  
 }  
 
 void mouseClicked() {
@@ -163,53 +146,32 @@ void setTriangles() {
 Voronoi defineSurface(ArrayList<Vec2D> vertices) {
   Voronoi graph = new Voronoi();
   int pointsPerSide = 20;
-  
+
   for (int i = 0; i < vertices.size(); i++) {
     Vec2D a = (Vec2D)vertices.get(i);
-    Vec2D b = new Vec2D();
-    if (i == vertices.size() -1) {
-      b = (Vec2D)vertices.get(0);
-    } else {
-      b = (Vec2D)vertices.get
-    }
-    (1 ? 1 : 0);
+    // Loop around to find b to ensure closed (though not necessarily convex!) polygon 
+    Vec2D b = (Vec2D)vertices.get((i == (vertices.size() - 1)) ? 0 : i+1);
+    // Add vertices to graph
     graph.addPoint((Vec2D)vertices.get(i));
-    
+
     // Define a line to put points on
-    
-    if (segment.a.x == segment.b.x) {
-      for (int i = 0; i < pointsPerSide; i++) {
-        voronoi.addPoint(new Vec2D((int)segment.a.x, (int)random(segment.a.y, segment.b.y)));
+    // Special case for lines with vertical slope...
+    if (a.x == b.x) {
+      for (int j = 0; j < pointsPerSide; j++) {
+        graph.addPoint(new Vec2D((int)a.x, (int)random(a.y, b.y)));
       }
-    } else { 
-      float m = (segment.b.y - segment.a.y) / (segment.b.x - segment.a.x);
-      float b = segment.a.y - (m * segment.a.x);
-      for (int i = 0; i < pointsPerSide; i++) {
-        int x = (int) (segment.a.x < segment.b.x ? random(segment.a.x, segment.b.x) : random(segment.b.x, segment.a.x));
-        int y = (int) ((m * x) + b);
-        voronoi.addPoint(new Vec2D(x, y));
+    } 
+    else { // Non-undefined slope
+      float m = (b.y - a.y) / (b.x - a.x);
+      float y_int = a.y - (m * a.x);
+      for (int k = 0; k < pointsPerSide; k++) {
+        int x = (int) (a.x < b.x ? random(a.x, b.x) : random(b.x, a.x));
+        int y = (int) ((m * x) + y_int);
+        graph.addPoint(new Vec2D(x, y));
       }
     } // End point-adding
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  for (Vec2D vert : vertices) {
-  // Add endpoint to graph
-    graph.addPoint(vert);
-  
-  // Define a line 
-    
-  // Special case for last point: should wrap around (might end up with pinched shape but whatever) 
-  }
-  return graph;
-  
-  
-}
 
+  return graph;
+}
 
