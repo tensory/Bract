@@ -34,19 +34,22 @@ void setup() {
   // surface defines vertices of the tileable shape
   // this could be read from a file...
   ArrayList<Vec2D> vertices = new ArrayList<Vec2D>();
-  vertices.add(new Vec2D(0, 0));
-  vertices.add(new Vec2D(0, canvasSize));
-  vertices.add(new Vec2D(canvasSize, canvasSize));
-  vertices.add(new Vec2D(canvasSize, 0));
+  int offset = 0;
+  vertices.add(new Vec2D(0 + offset, 0 + offset));
+  vertices.add(new Vec2D(0 + offset, canvasSize - offset));
+  vertices.add(new Vec2D(canvasSize - offset, canvasSize -offset));
+  vertices.add(new Vec2D(canvasSize-offset, 0 + offset));
 
   // Make the graph the edges at first
-  voronoi = defineSurface(vertices);
+  voronoi = defineSurface(vertices);   
 
   // Throw down remaining points that are inside the shape
   Polygon2D surface = new Polygon2D(vertices);
   ArrayList<Vec2D> newPoints = new ArrayList<Vec2D>();
-  int containedPoints = 1000;
-
+  
+  float density = 0.7; // Edit this to control graph size
+  int containedPoints = (int) ((canvasSize * 2)  * density);
+/*
   while (newPoints.size () < containedPoints) {
     Vec2D newPoint = new Vec2D((int) random(0, canvasSize), (int) random(0, canvasSize));
     if (surface.containsPoint(newPoint)) {
@@ -57,16 +60,11 @@ void setup() {
   for (Vec2D pt : newPoints) {
     voronoi.addPoint(pt);
   }
-
-  setTriangles();
+  */
 }
 
 void draw() {
   background(0);
-  fill(128);
-  strokeWeight(1);
-  stroke(255);
-
 /*
   // Show DT of points
   beginShape(TRIANGLES);
@@ -84,7 +82,9 @@ void draw() {
 */
   stroke(#671295);
   fill(#D7B9E8);
+  strokeWeight(8);
   for (Polygon2D r : voronoi.getRegions()) {
+    // This po
     gfx.polygon2D(r);
   }  
   
@@ -92,13 +92,14 @@ void draw() {
   for (Vec2D c : voronoi.getSites()) {
     ellipse(c.x, c.y, 3, 3);
   }
+  
 }  
 
 void mouseClicked() {
   //  allPoints.add(new PVector(mouseX, mouseY));
 
   voronoi.addPoint(new Vec2D(mouseX, mouseY));
-  setTriangles();
+  
 }
 
 void keyPressed() {
@@ -125,15 +126,6 @@ boolean isTriangle(Triangle2D tri2d) {
     }
   } 
   return true;
-}
-
-void setTriangles() {
-  // Do DT, populate initial list of PolyTriangles
-  for (Triangle2D t : voronoi.getTriangles()) {
-    if (isTriangle(t)) {
-      delaunayTriangles.add(t);
-    }
-  }
 }
 
 /**
