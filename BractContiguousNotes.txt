@@ -1,0 +1,34 @@
+Bract Contiguous Notes
+
+- Points: Need a new way of finding the hull of a group of points
+	- Hullfinding works. Now, integrate hullfinding into Polygon so that:
+
+		
+
+fml, so many polar/cartesian conversions
+Printing This Craziness
+
+
+LATTICE
+Polygon
+
+when finding out how to add a polygon to the edge:
+find mouse xy
+first test: is xy outside of the Lattice supergon?
+second test: can a new polygon be fitted to 2 or more points  
+
+Supergon
+
+EDGE
+PVector a, b;
+boolean isExtensible
+
+POLYGON
+PVector[numSides] points <-- polar points!
+PVector xyCenter;
+
+class Polygon {
+	ArrayList points;
+	PVector xyCenter;		
+}
+

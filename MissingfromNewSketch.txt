@@ -1,0 +1,60 @@
+
+void draw() {
+  // make polygon of points
+  
+  stroke(0);
+  // not important right now
+  // add edges to Edges
+  for (int edgeIndex = 0; edgeIndex < numPoints; edgeIndex++) {
+    Edge edge = (Edge)supergonEdge.get(edgeIndex);
+    if (edge.a.x == nearestEdgeToNewRegion.a.x &&
+    edge.a.y == nearestEdgeToNewRegion.a.y &&
+    edge.b.x == nearestEdgeToNewRegion.b.x &&
+    edge.b.y == nearestEdgeToNewRegion.b.y) {
+      stroke(255, 0, 0);
+    } else {
+      stroke(0);
+    }
+    line(edge.a.x, edge.a.y, edge.b.x, edge.b.y);
+  }
+}
+
+void mousePressed() {
+  println(mouseX + " " + mouseY);
+  int x1, y1, x2, y2, h1, h2;
+  float smallestAvg = 0;
+
+  // test nearness to edge points
+  for (int edgeIndex = 0; edgeIndex < supergonEdge.size(); edgeIndex++) {
+    Edge thisEdge = supergonEdge.get(edgeIndex);
+    x1 = (int)abs(mouseX - thisEdge.a.x);
+    y1 = (int)abs(mouseY - thisEdge.a.y);
+    h1 = (int)sqrt(pow(x1, 2) + pow(y1, 2));
+    x2 = (int)abs(mouseX - thisEdge.b.x);
+    y2 = (int)abs(mouseY - thisEdge.b.y);
+    h2 = (int)sqrt(pow(x2, 2) + pow(y2, 2));
+
+    // fake it with the average right now
+    // this is buggy
+    float avg = (h1 + h2) / 2;
+    if (avg < smallestAvg || smallestAvg == 0) {
+      smallestAvg = avg;
+      // this edge is closest
+      nearestEdgeToNewRegion = thisEdge;
+    }
+  }
+}
+  /*
+  // nearest edge has been found
+  // build a new PolarPolygon off it
+  // i hope it passes by reference but idk
+  if (smallestAvg < 100) {
+    // add edges of new PolarPolygon ot
+    PolarPolygon newest = new PolarPolygon();
+    newest.create();
+ 
+
+
+  }
+ */  
+
