@@ -49,7 +49,7 @@ void setup() {
   
   float density = 0.7; // Edit this to control graph size
   int containedPoints = (int) ((canvasSize * 2)  * density);
-/*
+
   while (newPoints.size () < containedPoints) {
     Vec2D newPoint = new Vec2D((int) random(0, canvasSize), (int) random(0, canvasSize));
     if (surface.containsPoint(newPoint)) {
@@ -60,7 +60,7 @@ void setup() {
   for (Vec2D pt : newPoints) {
     voronoi.addPoint(pt);
   }
-  */
+
 }
 
 void draw() {
@@ -82,9 +82,8 @@ void draw() {
 */
   stroke(#671295);
   fill(#D7B9E8);
-  strokeWeight(8);
+  strokeWeight(1);
   for (Polygon2D r : voronoi.getRegions()) {
-    // This po
     gfx.polygon2D(r);
   }  
   
